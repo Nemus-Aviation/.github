@@ -1,0 +1,28 @@
+{
+  "name": "@nemus-aviation/email-system",
+  "version": "1.0.0",
+  "description": "Notification email system for Nemus Aviation — invoices, announcements, updates, and scheduling.",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node examples/sendExamples.js",
+    "test": "node --test",
+    "preview": "node scripts/previewTemplates.js"
+  },
+  "keywords": [
+    "email",
+    "notifications",
+    "nodemailer",
+    "aviation",
+    "invoices",
+    "scheduling"
+  ],
+  "author": "Nemus Aviation",
+  "license": "UNLICENSED",
+  "private": true,
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "handlebars": "^4.7.8",
+    "nodemailer": "^6.9.14"
+  }
+}

@@ -1,0 +1,57 @@
+{{#> layout}}
+  <h1 style="margin:0 0 16px; font-size:22px; color:#1f2933;">Invoice {{invoiceNumber}}</h1>
+  <p style="margin:0 0 16px; font-size:15px; line-height:1.6;">
+    Hi {{customerName}}, thank you for flying with {{brand.companyName}}. Here is a summary of your invoice.
+  </p>
+
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 20px; font-size:14px;">
+    <tr>
+      <td style="padding:6px 0; color:#7b8794;">Invoice number</td>
+      <td style="padding:6px 0; text-align:right; font-weight:600;">{{invoiceNumber}}</td>
+    </tr>
+    <tr>
+      <td style="padding:6px 0; color:#7b8794;">Issue date</td>
+      <td style="padding:6px 0; text-align:right;">{{date issueDate}}</td>
+    </tr>
+    <tr>
+      <td style="padding:6px 0; color:#7b8794;">Due date</td>
+      <td style="padding:6px 0; text-align:right; font-weight:600;">{{date dueDate}}</td>
+    </tr>
+  </table>
+
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse; margin:0 0 20px; font-size:14px;">
+    <thead>
+      <tr>
+        <th align="left" style="padding:10px 8px; border-bottom:2px solid #e4e7eb; color:#7b8794; font-weight:600;">Description</th>
+        <th align="right" style="padding:10px 8px; border-bottom:2px solid #e4e7eb; color:#7b8794; font-weight:600;">Amount</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each lineItems}}
+      <tr>
+        <td style="padding:10px 8px; border-bottom:1px solid #eef1f4;">{{this.description}}</td>
+        <td align="right" style="padding:10px 8px; border-bottom:1px solid #eef1f4;">{{currency this.amount ../currency}}</td>
+      </tr>
+      {{/each}}
+      <tr>
+        <td align="right" style="padding:12px 8px; font-weight:700;">Total due</td>
+        <td align="right" style="padding:12px 8px; font-weight:700; font-size:16px; color:{{brand.brandColor}};">{{currency total currency}}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  {{#if payUrl}}
+  <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 0 20px;">
+    <tr>
+      <td style="border-radius:6px; background-color:{{brand.brandColor}};">
+        <a href="{{payUrl}}" style="display:inline-block; padding:12px 28px; color:#ffffff; text-decoration:none; font-weight:600; font-size:15px;">Pay invoice</a>
+      </td>
+    </tr>
+  </table>
+  {{/if}}
+
+  <p style="margin:0; font-size:13px; color:#7b8794;">
+    Questions about this invoice? Reply to this email or contact
+    <a href="mailto:{{brand.supportEmail}}" style="color:{{brand.brandColor}};">{{brand.supportEmail}}</a>.
+  </p>
+{{/layout}}
