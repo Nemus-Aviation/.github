@@ -6,6 +6,7 @@ process.env.DRY_RUN = 'true';
 
 const { emailService } = await import('../src/index.js');
 const { renderTemplate, htmlToText } = await import('../src/templateEngine.js');
+const { lookupTimeZone } = await import('../src/airportTimeZones.js');
 
 test('renderTemplate produces HTML with branding and currency formatting', () => {
   const html = renderTemplate('invoice', {
@@ -105,4 +106,19 @@ test('flight times render in the provided IANA zone with a zone label', () => {
   assert.match(html, /5:25\s?PM/);
   // Zone must be labelled so the time is never ambiguous.
   assert.match(html, /EDT/);
+});
+
+test('lookupTimeZone resolves ICAO and IATA codes, case-insensitively', () => {
+  assert.equal(lookupTimeZone('KTEB'), 'America/New_York');
+  assert.equal(lookupTimeZone('TEB'), 'America/New_York');
+  assert.equal(lookupTimeZone('kmia'), 'America/New_York');
+  assert.equal(lookupTimeZone(' LAX '), 'America/Los_Angeles');
+  assert.equal(lookupTimeZone('PHX'), 'America/Phoenix'); // no DST
+});
+
+test('lookupTimeZone returns undefined for unknown or invalid input', () => {
+  assert.equal(lookupTimeZone('ZZZZ'), undefined);
+  assert.equal(lookupTimeZone(''), undefined);
+  assert.equal(lookupTimeZone(undefined), undefined);
+  assert.equal(lookupTimeZone(42), undefined);
 });

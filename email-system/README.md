@@ -88,12 +88,19 @@ await emailService.sendScheduling({
 });
 ```
 
-> **Times & timezones.** Pass `timeZone` (an IANA name like `America/New_York`)
-> to `sendScheduling` so departure/arrival render in the flight's local time —
-> otherwise they fall back to the server's timezone. For legs that cross zones,
-> set `departureTimeZone` and `arrivalTimeZone` individually. Date-only invoice
-> fields (`issueDate`, `dueDate`) are always rendered in UTC so they never shift
-> a day.
+> **Times & timezones.** Flight times render in the flight's local zone. The
+> zone is resolved in this order: an explicit `timeZone` (IANA name like
+> `America/New_York`) → the origin/destination **airport code** (`KTEB`, `MIA`,
+> … — both ICAO and IATA are recognised, see
+> [`src/airportTimeZones.js`](src/airportTimeZones.js)) → the server's zone as a
+> last resort (always labelled, e.g. `EDT`, so it's never ambiguous). For legs
+> that cross zones, set `departureTimeZone` and `arrivalTimeZone` individually.
+> Date-only invoice fields (`issueDate`, `dueDate`) always render in UTC so they
+> never shift a day.
+
+The airport table is a curated list of airports Nemus Aviation is likely to
+serve, not an exhaustive database. For any airport not listed, pass `timeZone`
+explicitly — or add the code to `src/airportTimeZones.js`.
 
 Every method returns `{ messageId, dryRun, accepted }`.
 

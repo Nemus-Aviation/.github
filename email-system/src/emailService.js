@@ -1,5 +1,6 @@
 import { sendMail, verifyConnection } from './mailer.js';
 import { renderTemplate, htmlToText } from './templateEngine.js';
+import { lookupTimeZone } from './airportTimeZones.js';
 
 /**
  * High-level notification API for Nemus Aviation.
@@ -121,8 +122,9 @@ export const emailService = {
    * @param {string|Date} payload.arrivalTime
    * @param {string} [payload.timeZone]         IANA zone (e.g. "America/New_York") used to
    *                                            render both times in the flight's local time.
-   *                                            Strongly recommended — without it, times render
-   *                                            in the server's zone. Defaults per-leg below.
+   *                                            If omitted, the zone is derived from the origin/
+   *                                            destination airport codes; failing that, the
+   *                                            server's zone is used (always labelled).
    * @param {string} [payload.departureTimeZone] Overrides `timeZone` for the departure time.
    * @param {string} [payload.arrivalTimeZone]   Overrides `timeZone` for the arrival time.
    * @param {string} [payload.aircraft]
@@ -141,8 +143,17 @@ export const emailService = {
       template: 'scheduling',
       data: {
         ...payload,
-        departureTimeZone: payload.departureTimeZone || payload.timeZone,
-        arrivalTimeZone: payload.arrivalTimeZone || payload.timeZone,
+        // Resolve each leg's zone: explicit override → shared timeZone →
+        // derived from the airport code. Undefined if none match, in which
+        // case the datetime helper falls back to the server zone (labelled).
+        departureTimeZone:
+          payload.departureTimeZone ||
+          payload.timeZone ||
+          lookupTimeZone(payload.origin),
+        arrivalTimeZone:
+          payload.arrivalTimeZone ||
+          payload.timeZone ||
+          lookupTimeZone(payload.destination),
       },
       attachments: payload.attachments,
     });

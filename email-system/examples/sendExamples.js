@@ -63,7 +63,8 @@ async function main() {
     destination: 'KMIA',
     departureTime: '2026-07-28T14:30:00-04:00',
     arrivalTime: '2026-07-28T17:25:00-04:00',
-    timeZone: 'America/New_York',
+    // No timeZone needed — it's derived from the KTEB / KMIA airport codes.
+    // Pass `timeZone` explicitly for airports not in the lookup table.
     aircraft: 'Cessna Citation CJ3+',
     gate: 'Signature FBO, Terminal A',
     manageUrl: 'https://nemusaviation.com/bookings/NEM-118',
