@@ -68,3 +68,41 @@ test('deliver throws a clear error when no recipient is provided', async () => {
 test('unknown template name raises a helpful error', () => {
   assert.throws(() => renderTemplate('does-not-exist', {}), /Unknown email template/);
 });
+
+test('date-only values do not shift a day regardless of server timezone', () => {
+  // Regression: 'YYYY-MM-DD' parsed as UTC midnight must not roll back a day
+  // when rendered west of UTC. This test runs under whatever TZ the process
+  // has; the invoice date must always read Jul 21.
+  const html = renderTemplate('invoice', {
+    subject: 'Invoice INV-3',
+    customerName: 'Sam',
+    invoiceNumber: 'INV-3',
+    issueDate: '2026-07-21',
+    dueDate: '2026-08-04',
+    currency: 'USD',
+    lineItems: [{ description: 'Charter', amount: 1 }],
+    total: 1,
+  });
+  assert.match(html, /Jul 21, 2026/);
+  assert.doesNotMatch(html, /Jul 20, 2026/);
+});
+
+test('flight times render in the provided IANA zone with a zone label', () => {
+  // Regression: times must follow the flight's zone, not the server's.
+  const html = renderTemplate('scheduling', {
+    subject: 'Confirmed',
+    passengerName: 'Sam',
+    title: 'Confirmed',
+    flightNumber: 'NEM-1',
+    origin: 'KTEB',
+    destination: 'KMIA',
+    departureTime: '2026-07-28T14:30:00-04:00', // 2:30 PM Eastern
+    arrivalTime: '2026-07-28T17:25:00-04:00', // 5:25 PM Eastern
+    departureTimeZone: 'America/New_York',
+    arrivalTimeZone: 'America/New_York',
+  });
+  assert.match(html, /2:30\s?PM/);
+  assert.match(html, /5:25\s?PM/);
+  // Zone must be labelled so the time is never ambiguous.
+  assert.match(html, /EDT/);
+});

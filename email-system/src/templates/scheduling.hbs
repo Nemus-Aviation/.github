@@ -13,11 +13,11 @@
     </tr>
     <tr>
       <td style="padding:12px 16px; border-bottom:1px solid #eef1f4; color:#7b8794;">Departure</td>
-      <td style="padding:12px 16px; border-bottom:1px solid #eef1f4;">{{origin}} &middot; {{datetime departureTime}}</td>
+      <td style="padding:12px 16px; border-bottom:1px solid #eef1f4;">{{origin}} &middot; {{datetime departureTime tz=departureTimeZone}}</td>
     </tr>
     <tr>
       <td style="padding:12px 16px; border-bottom:1px solid #eef1f4; color:#7b8794;">Arrival</td>
-      <td style="padding:12px 16px; border-bottom:1px solid #eef1f4;">{{destination}} &middot; {{datetime arrivalTime}}</td>
+      <td style="padding:12px 16px; border-bottom:1px solid #eef1f4;">{{destination}} &middot; {{datetime arrivalTime tz=arrivalTimeZone}}</td>
     </tr>
     {{#if aircraft}}
     <tr>

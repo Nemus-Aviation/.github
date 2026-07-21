@@ -82,10 +82,18 @@ await emailService.sendScheduling({
   destination: 'KMIA',
   departureTime: '2026-07-28T14:30:00-04:00',
   arrivalTime: '2026-07-28T17:25:00-04:00',
+  timeZone: 'America/New_York', // render times in the flight's local zone
   aircraft: 'Cessna Citation CJ3+',
   manageUrl: 'https://nemusaviation.com/bookings/NEM-118',
 });
 ```
+
+> **Times & timezones.** Pass `timeZone` (an IANA name like `America/New_York`)
+> to `sendScheduling` so departure/arrival render in the flight's local time —
+> otherwise they fall back to the server's timezone. For legs that cross zones,
+> set `departureTimeZone` and `arrivalTimeZone` individually. Date-only invoice
+> fields (`issueDate`, `dueDate`) are always rendered in UTC so they never shift
+> a day.
 
 Every method returns `{ messageId, dryRun, accepted }`.
 

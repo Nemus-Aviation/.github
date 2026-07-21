@@ -119,6 +119,12 @@ export const emailService = {
    * @param {string} payload.destination
    * @param {string|Date} payload.departureTime
    * @param {string|Date} payload.arrivalTime
+   * @param {string} [payload.timeZone]         IANA zone (e.g. "America/New_York") used to
+   *                                            render both times in the flight's local time.
+   *                                            Strongly recommended — without it, times render
+   *                                            in the server's zone. Defaults per-leg below.
+   * @param {string} [payload.departureTimeZone] Overrides `timeZone` for the departure time.
+   * @param {string} [payload.arrivalTimeZone]   Overrides `timeZone` for the arrival time.
    * @param {string} [payload.aircraft]
    * @param {string} [payload.gate]
    * @param {string} [payload.manageUrl]
@@ -133,7 +139,11 @@ export const emailService = {
         payload.subject ||
         `${payload.statusLabel || 'Scheduling'}: ${payload.flightNumber} ${payload.origin} → ${payload.destination}`,
       template: 'scheduling',
-      data: payload,
+      data: {
+        ...payload,
+        departureTimeZone: payload.departureTimeZone || payload.timeZone,
+        arrivalTimeZone: payload.arrivalTimeZone || payload.timeZone,
+      },
       attachments: payload.attachments,
     });
   },

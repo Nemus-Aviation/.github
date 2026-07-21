@@ -20,29 +20,45 @@ Handlebars.registerHelper('currency', (amount, code = 'USD') => {
   }).format(value);
 });
 
-Handlebars.registerHelper('date', (value) => {
+Handlebars.registerHelper('date', (value, options) => {
   if (!value) return '';
+  // A date-only string (YYYY-MM-DD) is parsed by JS as UTC midnight. Rendering
+  // it in the server's local zone can roll it back a day (e.g. a due date of
+  // Jul 21 showing as Jul 20 west of UTC), so pin those to UTC.
+  const isDateOnly =
+    typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value.trim());
   const d = value instanceof Date ? value : new Date(value);
   if (Number.isNaN(d.getTime())) return value;
-  return d.toLocaleDateString('en-US', {
+  const fmt = {
     weekday: 'short',
     year: 'numeric',
     month: 'short',
     day: 'numeric',
-  });
+  };
+  if (isDateOnly) fmt.timeZone = 'UTC';
+  const tz = options && options.hash && options.hash.tz;
+  if (tz) fmt.timeZone = tz;
+  return d.toLocaleDateString('en-US', fmt);
 });
 
-Handlebars.registerHelper('datetime', (value) => {
+Handlebars.registerHelper('datetime', (value, options) => {
   if (!value) return '';
   const d = value instanceof Date ? value : new Date(value);
   if (Number.isNaN(d.getTime())) return value;
-  return d.toLocaleString('en-US', {
+  const fmt = {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
     hour: 'numeric',
     minute: '2-digit',
-  });
+    // Always label the zone so a time is never silently ambiguous. Callers
+    // should pass `tz=` (an IANA name like "America/New_York") to render in the
+    // event's local zone rather than the server's.
+    timeZoneName: 'short',
+  };
+  const tz = options && options.hash && options.hash.tz;
+  if (tz) fmt.timeZone = tz;
+  return d.toLocaleString('en-US', fmt);
 });
 
 // Register the shared layout as a partial so every template can wrap itself.
@@ -97,9 +113,10 @@ export function htmlToText(html) {
     .replace(/<br\s*\/?>/gi, '\n')
     .replace(/<[^>]+>/g, '')
     .replace(/&nbsp;/g, ' ')
-    .replace(/&amp;/g, '&')
     .replace(/&lt;/g, '<')
     .replace(/&gt;/g, '>')
+    // Decode &amp; last so we don't double-decode (e.g. "&amp;lt;" -> "&lt;").
+    .replace(/&amp;/g, '&')
     .replace(/\n{3,}/g, '\n\n')
     .split('\n')
     .map((line) => line.trim())
